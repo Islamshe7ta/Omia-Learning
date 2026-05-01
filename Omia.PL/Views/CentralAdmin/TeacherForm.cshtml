@@ -1,0 +1,96 @@
+@model Omia.PL.ViewModels.CentralAdmin.TeacherFormViewModel
+@{
+    ViewData["Title"] = Model.IsEdit ? "تعديل بيانات المدرس" : "إضافة مدرس جديد";
+    var action = Model.IsEdit ? "TeacherEdit" : "TeacherCreate";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-@(Model.IsEdit ? "pencil-square" : "person-plus") me-2"></i>@ViewData["Title"]</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">لوحة التحكم</a></li>
+            <li class="breadcrumb-item"><a asp-action="Teachers">المدرسون</a></li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">@ViewData["Title"]</div>
+            <div class="card-body p-4">
+                <form asp-action="@action" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (Model.IsEdit)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+
+                    <div asp-validation-summary="All" class="alert alert-danger mb-3" style="display:@(ViewData.ModelState.IsValid ? "none" : "block");"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" placeholder="الاسم الكامل" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Username" class="form-label"></label>
+                            <input asp-for="Username" class="form-control" placeholder="اسم المستخدم" autocomplete="off" />
+                            <span asp-validation-for="Username" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label">
+                                @(Model.IsEdit ? "كلمة المرور الجديدة (اتركها فارغة للإبقاء)" : "كلمة المرور")
+                            </label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" autocomplete="new-password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="example@mail.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="01xxxxxxxxx" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="AvailableStagesCount" class="form-label"></label>
+                            <input asp-for="AvailableStagesCount" type="number" min="0" class="form-control" placeholder="0" />
+                            <span asp-validation-for="AvailableStagesCount" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Specialization" class="form-label"></label>
+                            <input asp-for="Specialization" class="form-control" placeholder="مثال: رياضيات، فيزياء..." />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EducationDegree" class="form-label"></label>
+                            <input asp-for="EducationDegree" class="form-control" placeholder="مثال: ماجستير، دكتوراه..." />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label"></label>
+                            <textarea asp-for="Address" class="form-control" rows="2" placeholder="عنوان السكن"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-@(Model.IsEdit ? "check-lg" : "plus-lg") me-1"></i>
+                            @(Model.IsEdit ? "حفظ التعديلات" : "إنشاء الحساب")
+                        </button>
+                        <a asp-action="Teachers" class="btn btn-secondary">
+                            <i class="bi bi-x-lg me-1"></i>إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

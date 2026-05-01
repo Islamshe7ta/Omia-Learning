@@ -1,0 +1,212 @@
+@model Omia.PL.ViewModels.CentralAdmin.DashboardViewModel
+@{
+    ViewData["Title"] = "لوحة التحكم";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="bi bi-speedometer2 me-2"></i>لوحة التحكم</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active">الرئيسية</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- ── Summary Stats ── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <a asp-action="Institutes" class="stat-card stat-bg-1 d-block">
+            <div class="stat-icon stat-icon-1"><i class="bi bi-building"></i></div>
+            <div>
+                <div class="stat-value">@Model.TotalInstitutes</div>
+                <div class="stat-label">إجمالي المعاهد</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a asp-action="Teachers" class="stat-card stat-bg-2 d-block">
+            <div class="stat-icon stat-icon-2"><i class="bi bi-person-video3"></i></div>
+            <div>
+                <div class="stat-value">@Model.TotalSoloTeachers</div>
+                <div class="stat-label">المدرسون المنفردون</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-bg-4">
+            <div class="stat-icon stat-icon-4"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-value">@Model.TotalStudents</div>
+                <div class="stat-label">إجمالي الطلاب</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-bg-3">
+            <div class="stat-icon stat-icon-3"><i class="bi bi-book"></i></div>
+            <div>
+                <div class="stat-value">@Model.ActiveCourses</div>
+                <div class="stat-label">الكورسات الفعالة</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Sub Stats Row ── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div style="font-size:1.75rem;font-weight:800;color:#15803d;">@Model.ActiveInstitutes</div>
+            <div style="font-size:.82rem;color:#555;font-weight:600;">معاهد نشطة</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div style="font-size:1.75rem;font-weight:800;color:#15803d;">@Model.ActiveSoloTeachers</div>
+            <div style="font-size:.82rem;color:#555;font-weight:600;">مدرسون نشطون</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div style="font-size:1.75rem;font-weight:800;color:#b91c1c;">@Model.InactiveCourses</div>
+            <div style="font-size:.82rem;color:#555;font-weight:600;">كورسات منتهية</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div style="font-size:1.75rem;font-weight:800;color:#6F4518;">@(Model.TotalAvailableSubjectsForInstitutes + Model.TotalAvailableStagesForTeachers)</div>
+            <div style="font-size:.82rem;color:#555;font-weight:600;">مجموع المتاح</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Quick Nav ── -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-lightning-charge me-2"></i>الوصول السريع</div>
+            <div class="card-body d-flex flex-wrap gap-2 p-3">
+                <a asp-action="Details" class="btn btn-primary"><i class="bi bi-bar-chart-line me-1"></i>الإحصاءات التفصيلية</a>
+                <a asp-action="Institutes" class="btn btn-primary"><i class="bi bi-building me-1"></i>إدارة المعاهد</a>
+                <a asp-action="Teachers" class="btn btn-primary"><i class="bi bi-person-video3 me-1"></i>إدارة المدرسين</a>
+                <a asp-action="Admins" class="btn btn-primary"><i class="bi bi-shield-lock me-1"></i>إدارة المسؤولين</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Institutes Table ── -->
+@if (Model.InstituteStats.Any())
+{
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-building me-2"></i>إحصاءات المعاهد</span>
+            <a asp-action="Institutes" class="btn btn-outline-primary btn-sm">عرض الكل</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم المعهد</th>
+                            <th>الطلاب</th>
+                            <th>كورسات فعالة</th>
+                            <th>كورسات منتهية</th>
+                            <th>المتاح</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = 1; }
+                        @foreach (var row in Model.InstituteStats)
+                        {
+                            <tr>
+                                <td>@(i++)</td>
+                                <td><strong>@row.Name</strong></td>
+                                <td><span style="color:#6F4518;font-weight:700;">@row.StudentCount</span></td>
+                                <td><span style="color:#15803d;font-weight:700;">@row.ActiveCourseCount</span></td>
+                                <td><span style="color:#b91c1c;font-weight:700;">@row.InactiveCourseCount</span></td>
+                                <td>@row.AvailableSlots</td>
+                                <td>
+                                    @if (row.Status == "Active")
+                                    {
+                                        <span class="badge-active">نشط</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-paused">موقوف</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ── Teachers Table ── -->
+@if (Model.SoloTeacherStats.Any())
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-person-video3 me-2"></i>إحصاءات المدرسين المنفردين</span>
+            <a asp-action="Teachers" class="btn btn-outline-primary btn-sm">عرض الكل</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم المدرس</th>
+                            <th>الطلاب</th>
+                            <th>كورسات فعالة</th>
+                            <th>كورسات منتهية</th>
+                            <th>المتاح</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int j = 1; }
+                        @foreach (var row in Model.SoloTeacherStats)
+                        {
+                            <tr>
+                                <td>@(j++)</td>
+                                <td><strong>@row.Name</strong></td>
+                                <td><span style="color:#6F4518;font-weight:700;">@row.StudentCount</span></td>
+                                <td><span style="color:#15803d;font-weight:700;">@row.ActiveCourseCount</span></td>
+                                <td><span style="color:#b91c1c;font-weight:700;">@row.InactiveCourseCount</span></td>
+                                <td>@row.AvailableSlots</td>
+                                <td>
+                                    @if (row.Status == "Active")
+                                    {
+                                        <span class="badge-active">نشط</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-paused">موقوف</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!Model.InstituteStats.Any() && !Model.SoloTeacherStats.Any())
+{
+    <div class="card">
+        <div class="card-body text-center py-5" style="color:#A47148;">
+            <i class="bi bi-inbox" style="font-size:3rem;"></i>
+            <p class="mt-3 mb-0 fw-bold">لا توجد بيانات حتى الآن</p>
+        </div>
+    </div>
+}

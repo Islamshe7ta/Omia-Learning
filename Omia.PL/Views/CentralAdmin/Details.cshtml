@@ -1,0 +1,150 @@
+@model Omia.PL.ViewModels.CentralAdmin.DetailsViewModel
+@{
+    ViewData["Title"] = "الإحصاءات التفصيلية";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-bar-chart-line me-2"></i>الإحصاءات التفصيلية</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">لوحة التحكم</a></li>
+            <li class="breadcrumb-item active">الإحصاءات التفصيلية</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- ── Filter Card ── -->
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-funnel me-2"></i>فلترة النتائج</div>
+    <div class="card-body">
+        <form asp-action="Details" method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">المعهد</label>
+                    <select name="InstituteId" class="form-select" onchange="this.form.TeacherId.value=''">
+                        <option value="">-- اختر معهداً --</option>
+                        @foreach (var opt in Model.Institutes)
+                        {
+                            <option value="@opt.Id" @@(Model.Filter.InstituteId == opt.Id ? "selected" : "")>@opt.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">المدرس المنفرد</label>
+                    <select name="TeacherId" class="form-select" onchange="this.form.InstituteId.value=''">
+                        <option value="">-- اختر مدرساً --</option>
+                        @foreach (var opt in Model.SoloTeachers)
+                        {
+                            <option value="@opt.Id" @@(Model.Filter.TeacherId == opt.Id ? "selected" : "")>@opt.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">من تاريخ</label>
+                    <input type="date" name="DateFrom" class="form-control"
+                           value="@Model.Filter.DateFrom?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">إلى تاريخ</label>
+                    <input type="date" name="DateTo" class="form-control"
+                           value="@Model.Filter.DateTo?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill"><i class="bi bi-search me-1"></i>بحث</button>
+                    <a asp-action="Details" class="btn btn-secondary"><i class="bi bi-x"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.SelectedEntityName))
+{
+    <!-- ── Summary ── -->
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card" style="border-right: 4px solid #583101;">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div style="font-size:2rem;"><i class="bi bi-graph-up-arrow" style="color:#6F4518;"></i></div>
+                    <div>
+                        <div style="font-size:1.1rem;font-weight:800;color:#583101;">@Model.SelectedEntityName</div>
+                        <div style="font-size:.88rem;color:#666;">
+                            <span style="margin-left:1.5rem;"><strong style="color:#6F4518;">@Model.StudentCount</strong> طالب مسجل</span>
+                            <span style="margin-left:1.5rem;"><strong style="color:#15803d;">@Model.CourseRows.Count(c => c.IsActive)</strong> كورس فعال</span>
+                            <span><strong style="color:#b91c1c;">@Model.CourseRows.Count(c => !c.IsActive)</strong> كورس منتهي</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Courses Table ── -->
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-book me-2"></i>الكورسات
+            @if (Model.Filter.DateFrom.HasValue || Model.Filter.DateTo.HasValue)
+            {
+                <span style="font-size:.8rem;font-weight:400;color:#888;margin-right:.5rem;">
+                    (مفلترة بالتاريخ: @Model.Filter.DateFrom?.ToString("dd/MM/yyyy") ~ @Model.Filter.DateTo?.ToString("dd/MM/yyyy"))
+                </span>
+            }
+        </div>
+        @if (Model.CourseRows.Any())
+        {
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>اسم الكورس</th>
+                                <th>الطلاب المسجلين</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int k = 1; }
+                            @foreach (var row in Model.CourseRows)
+                            {
+                                <tr>
+                                    <td>@(k++)</td>
+                                    <td><strong>@row.CourseName</strong></td>
+                                    <td><span style="color:#6F4518;font-weight:700;">@row.EnrolledStudents</span></td>
+                                    <td>@(row.ExpireDate?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                    <td>
+                                        @if (row.IsActive)
+                                        {
+                                            <span class="badge-active">فعال</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-inactive">منتهي</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card-body text-center py-4" style="color:#A47148;">
+                <i class="bi bi-inbox" style="font-size:2rem;"></i>
+                <p class="mt-2 mb-0">لا توجد كورسات بالمعايير المحددة</p>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body text-center py-5" style="color:#A47148;">
+            <i class="bi bi-arrow-up-circle" style="font-size:3rem;"></i>
+            <p class="mt-3 mb-0 fw-bold">اختر معهداً أو مدرساً من الفلتر أعلاه لعرض التفاصيل</p>
+        </div>
+    </div>
+}

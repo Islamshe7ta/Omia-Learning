@@ -1,0 +1,108 @@
+@model IEnumerable<Omia.PL.ViewModels.CentralAdmin.TeacherListViewModel>
+@{
+    ViewData["Title"] = "إدارة المدرسين";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="bi bi-person-video3 me-2"></i>إدارة المدرسين المنفردين</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">لوحة التحكم</a></li>
+                <li class="breadcrumb-item active">المدرسون</li>
+            </ol>
+        </nav>
+    </div>
+    <a asp-action="TeacherCreate" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>إضافة مدرس جديد
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>قائمة المدرسين المنفردين</span>
+        <span style="font-size:.85rem;color:#888;">الإجمالي: @Model.Count()</span>
+    </div>
+    @if (Model.Any())
+    {
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الاسم الكامل</th>
+                            <th>البريد / الهاتف</th>
+                            <th>التخصص</th>
+                            <th>الطلاب</th>
+                            <th>كورسات فعالة</th>
+                            <th>المتاح</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الإنشاء</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int idx = 1; }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@(idx++)</td>
+                                <td><strong>@item.FullName</strong></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Email))
+                                    { <div><i class="bi bi-envelope me-1" style="color:#A47148;"></i>@item.Email</div> }
+                                    @if (!string.IsNullOrEmpty(item.PhoneNumber))
+                                    { <div><i class="bi bi-telephone me-1" style="color:#A47148;"></i>@item.PhoneNumber</div> }
+                                </td>
+                                <td>@(item.Specialization ?? "—")</td>
+                                <td><span style="color:#6F4518;font-weight:700;">@item.StudentCount</span></td>
+                                <td><span style="color:#15803d;font-weight:700;">@item.ActiveCourseCount</span></td>
+                                <td>@(item.AvailableStagesCount ?? 0)</td>
+                                <td>
+                                    @if (item.Status == "Active")
+                                    { <span class="badge-active">نشط</span> }
+                                    else
+                                    { <span class="badge-paused">موقوف</span> }
+                                </td>
+                                <td style="font-size:.82rem;color:#888;">@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <a asp-action="TeacherEdit" asp-route-id="@item.Id"
+                                           class="btn btn-warning btn-sm" title="تعديل">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form asp-action="TeacherToggleStatus" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm @(item.Status == "Active" ? "btn-secondary" : "btn-success")"
+                                                    title="@(item.Status == "Active" ? "إيقاف" : "تفعيل")">
+                                                <i class="bi @(item.Status == "Active" ? "bi-pause-fill" : "bi-play-fill")"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="TeacherDelete" asp-route-id="@item.Id" method="post" style="display:inline;"
+                                              onsubmit="return confirm('هل أنت متأكد من حذف هذا المدرس؟');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-danger btn-sm" title="حذف">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-body text-center py-5" style="color:#A47148;">
+            <i class="bi bi-person-video3" style="font-size:3rem;"></i>
+            <p class="mt-3 mb-3 fw-bold">لا يوجد مدرسون منفردون حتى الآن</p>
+            <a asp-action="TeacherCreate" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>إضافة مدرس جديد
+            </a>
+        </div>
+    }
+</div>
