@@ -331,7 +331,7 @@ Authorization: Bearer <your_token>
 
 ## Author
 
-**Islam Shehata**
+**Islam Shehta**
 
 [![GitHub](https://img.shields.io/badge/GitHub-Islamshe7ta-181717?style=flat-square&logo=github)](https://github.com/Islamshe7ta)
 
